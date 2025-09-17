@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-
-// Use your Render backend URL here
-const API_BASE = "https://meetmysoul-backend-1.onrender.com";
+import API from "./api";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -11,18 +9,14 @@ function App() {
 
   // Handle Login
   const handleLogin = (email, password) => {
-    fetch(`${API_BASE}/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          setUser({ ...data.user, role: data.role });
+    API.post("/api/auth/login", { email, password })
+      .then((res) => {
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+          setUser({ ...res.data.user, role: res.data.role });
           setPage("dashboard");
         } else {
-          alert(data.msg || "Login failed");
+          alert(res.data.msg || "Login failed");
         }
       })
       .catch((err) => console.error("Login error:", err));
@@ -30,18 +24,14 @@ function App() {
 
   // Handle Register
   const handleRegister = (userData) => {
-    fetch(`${API_BASE}/api/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.token) {
-          setUser({ ...userData, role: data.role });
+    API.post("/api/auth/register", userData)
+      .then((res) => {
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+          setUser({ ...userData, role: res.data.role });
           setPage("dashboard");
         } else {
-          alert(data.msg || "Registration failed");
+          alert(res.data.msg || "Registration failed");
         }
       })
       .catch((err) => console.error("Register error:", err));
