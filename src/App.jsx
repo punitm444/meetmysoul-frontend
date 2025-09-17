@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import Header from "./components/Header"; // ✅ import new Header
+
+// Use your Render backend URL here
+const API_BASE = "https://meetmysoul-backend-1.onrender.com";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -9,7 +11,7 @@ function App() {
 
   // Handle Login
   const handleLogin = (email, password) => {
-    fetch("http://localhost:5000/api/auth/login", {
+    fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
@@ -22,12 +24,13 @@ function App() {
         } else {
           alert(data.msg || "Login failed");
         }
-      });
+      })
+      .catch((err) => console.error("Login error:", err));
   };
 
   // Handle Register
   const handleRegister = (userData) => {
-    fetch("http://localhost:5000/api/auth/register", {
+    fetch(`${API_BASE}/api/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(userData),
@@ -40,7 +43,8 @@ function App() {
         } else {
           alert(data.msg || "Registration failed");
         }
-      });
+      })
+      .catch((err) => console.error("Register error:", err));
   };
 
   // Show Dashboards
@@ -51,8 +55,15 @@ function App() {
   // Home Page with Login/Register
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
-      {/* ✅ Replaced old <h1> with Header */}
-      <Header />
+      {/* Title */}
+      <h1 className="text-4xl font-bold mb-2">
+        <span className="text-black">Meet My</span>
+        <span className="text-pink-600">sore</span>
+      </h1>
+      <h2 className="text-lg italic mb-8">
+        <span className="text-black">meet my</span>
+        <span className="text-pink-600">soul</span>
+      </h2>
 
       <div className="flex gap-8 w-full max-w-4xl">
         {/* Login Box */}
