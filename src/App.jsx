@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import API from "./api";
 
 function App() {
   const [page, setPage] = useState("home");
@@ -9,14 +8,22 @@ function App() {
 
   // Handle Login
   const handleLogin = (email, password) => {
-    API.post("/api/auth/login", { email, password })
-      .then((res) => {
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
-          setUser({ ...res.data.user, role: res.data.role });
+    fetch("https://meetmysoul-backend-1.onrender.com/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) {
+          setUser({
+            ...data.user,
+            role: data.role,
+            token: data.token, // ✅ save token
+          });
           setPage("dashboard");
         } else {
-          alert(res.data.msg || "Login failed");
+          alert(data.msg || "Login failed");
         }
       })
       .catch((err) => console.error("Login error:", err));
@@ -24,14 +31,22 @@ function App() {
 
   // Handle Register
   const handleRegister = (userData) => {
-    API.post("/api/auth/register", userData)
-      .then((res) => {
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
-          setUser({ ...userData, role: res.data.role });
+    fetch("https://meetmysoul-backend-1.onrender.com/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(userData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.token) {
+          setUser({
+            ...userData,
+            role: data.role,
+            token: data.token, // ✅ save token
+          });
           setPage("dashboard");
         } else {
-          alert(res.data.msg || "Registration failed");
+          alert(data.msg || "Registration failed");
         }
       })
       .catch((err) => console.error("Register error:", err));
@@ -39,28 +54,44 @@ function App() {
 
   // Show Dashboards
   if (page === "dashboard") {
-    return user?.role === "admin" ? <AdminDashboard /> : <Dashboard />;
+    return user?.role === "admin" ? (
+      <AdminDashboard token={user.token} />
+    ) : (
+      <Dashboard />
+    );
   }
 
   // Home Page with Login/Register
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
       {/* Title */}
-      <h1 className="text-4xl font-bold mb-2">
-        <span className="text-black">Meet My</span>
-        <span className="text-pink-600">sore</span>
-      </h1>
-      <h2 className="text-lg italic mb-8">
-        <span className="text-black">meet my</span>
-        <span className="text-pink-600">soul</span>
-      </h2>
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-bold">
+          <span className="text-black">Meet My</span>
+          <span className="text-pink-600">sore</span>
+        </h1>
+        <p className="text-lg italic text-gray-600 mt-2">
+          <span className="text-black">meet my</span>
+          <span className="text-pink-600">soul</span>
+        </p>
+      </div>
 
       <div className="flex gap-8 w-full max-w-4xl">
         {/* Login Box */}
         <div className="flex-1 bg-pink-100 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 text-pink-700">Login</h2>
-          <input id="loginEmail" type="email" placeholder="Email" className="w-full mb-3 p-2 border rounded" />
-          <input id="loginPassword" type="password" placeholder="Password" className="w-full mb-3 p-2 border rounded" />
+          <input
+            id="loginEmail"
+            type="email"
+            placeholder="Email"
+            className="w-full mb-3 p-2 border rounded"
+          />
+          <input
+            id="loginPassword"
+            type="password"
+            placeholder="Password"
+            className="w-full mb-3 p-2 border rounded"
+          />
           <button
             onClick={() =>
               handleLogin(
@@ -77,17 +108,42 @@ function App() {
         {/* Register Box */}
         <div className="flex-1 bg-pink-100 rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4 text-pink-700">Register</h2>
-          <input id="regEmail" type="email" placeholder="Email" className="w-full mb-3 p-2 border rounded" />
-          <input id="regName" type="text" placeholder="Name" className="w-full mb-3 p-2 border rounded" />
-          <input id="regAge" type="number" placeholder="Age" className="w-full mb-3 p-2 border rounded" />
+          <input
+            id="regEmail"
+            type="email"
+            placeholder="Email"
+            className="w-full mb-3 p-2 border rounded"
+          />
+          <input
+            id="regName"
+            type="text"
+            placeholder="Name"
+            className="w-full mb-3 p-2 border rounded"
+          />
+          <input
+            id="regAge"
+            type="number"
+            placeholder="Age"
+            className="w-full mb-3 p-2 border rounded"
+          />
           <select id="regGender" className="w-full mb-3 p-2 border rounded">
             <option value="">Select Gender</option>
             <option>Male</option>
             <option>Female</option>
             <option>Other</option>
           </select>
-          <input id="regPhone" type="text" placeholder="Phone Number" className="w-full mb-3 p-2 border rounded" />
-          <input id="regPassword" type="password" placeholder="Set Password" className="w-full mb-3 p-2 border rounded" />
+          <input
+            id="regPhone"
+            type="text"
+            placeholder="Phone Number"
+            className="w-full mb-3 p-2 border rounded"
+          />
+          <input
+            id="regPassword"
+            type="password"
+            placeholder="Set Password"
+            className="w-full mb-3 p-2 border rounded"
+          />
           <button
             onClick={() =>
               handleRegister({
